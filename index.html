@@ -1032,6 +1032,12 @@
                                       <strong>7 or 11:</strong> Draw Power Card.<br/>
                                       <strong>Snake Eyes (1-1):</strong> Lose 1 Point.
                                   </p>
+
+                                  <h3 className={`font-bold ${theme.textMain} text-lg mt-6 mb-2`}>Power Cards</h3>
+                                  <p className={`${theme.textSub} text-sm mb-4 leading-relaxed`}>
+                                      <strong>How to Use:</strong> You start with 2 cards. Click a card in your hand during your turn to activate it. 
+                                      Some cards act immediately (like <em>Jackpot</em>), while others require you to click a target on the board (like <em>Bust</em>).
+                                  </p>
                               </div>
                               
                               <div>
@@ -1118,15 +1124,9 @@
                               </div>
                           </div>
                            
-                           {/* Power Card Usage & Glossary */}
+                           {/* Power Card Glossary */}
                           <div className="border-t border-white/10 pt-6">
-                            <h3 className={`font-bold ${theme.textMain} text-lg mb-2`}>Power Cards</h3>
-                            <p className={`${theme.textSub} text-sm mb-4 leading-relaxed`}>
-                                <strong>How to Use:</strong> You can hold up to 2 cards. Click a card in your hand during your turn to activate it. 
-                                Some cards act immediately (like <em>Jackpot</em>), while others require you to click a target on the board (like <em>Bust</em>).
-                            </p>
-                            
-                            <h4 className={`font-bold ${theme.textMain} text-sm uppercase tracking-wider mb-4 opacity-80`}>Deck Glossary (36 Cards Total)</h4>
+                            <h4 className={`font-bold ${theme.textMain} text-sm uppercase tracking-wider mb-4 opacity-80`}>Power Cards Glossary (36 Cards Total)</h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {DECK_DISTRIBUTION.map((dist, i) => {
                                     const card = CARD_DEFINITIONS[dist.type];
