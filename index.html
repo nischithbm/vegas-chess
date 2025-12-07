@@ -36,7 +36,7 @@
         }
     </style>
     
-    <!-- Import Map to handle module imports in browser -->
+    <!-- Import Map -->
     <script type="importmap">
     {
       "imports": {
@@ -81,7 +81,9 @@
             accentText: "text-yellow-400",
             guideBg: "bg-slate-800",
             cardBg: "bg-white",
-            discardBg: "bg-slate-800"
+            discardBg: "bg-slate-800",
+            capturedBlackPiece: "text-slate-400",
+            capturedWhitePiece: "text-white"
           },
           wood: {
             name: 'Classic Wood',
@@ -98,7 +100,9 @@
             accentText: "text-amber-300",
             guideBg: "bg-[#3e2723]",
             cardBg: "bg-[#f5f5dc]", 
-            discardBg: "bg-[#3e2723]"
+            discardBg: "bg-[#3e2723]",
+            capturedBlackPiece: "text-black opacity-60",
+            capturedWhitePiece: "text-white"
           }
         };
 
@@ -115,17 +119,17 @@
 
         // --- Card Definitions & Distribution ---
         const CARD_DEFINITIONS = {
-            bust: { name: 'Bust', desc: 'Demolish an adjacent enemy piece. No points awarded.', icon: <Skull size={24} className="text-red-600"/>, color: 'border-red-400', rarity: 'Common' },
-            jackpot: { name: 'Jackpot', desc: 'Reach into the opponent\'s stash and steal 2 Points.', icon: <Coins size={24} className="text-yellow-600"/>, color: 'border-yellow-400', rarity: 'Ultra Rare' },
-            shuffle: { name: 'Shuffle', desc: 'Swap your King with any of your other pieces.', icon: <RefreshCcw size={24} className="text-blue-600"/>, color: 'border-blue-400', rarity: 'Uncommon' },
-            rebuy: { name: 'Rebuy', desc: 'Reinforcements! Spawn a new Pawn on any empty square.', icon: <Shield size={24} className="text-emerald-600"/>, color: 'border-emerald-400', rarity: 'Common' },
-            double: { name: 'Double Down', desc: 'Adrenaline! Move the same piece twice this turn.', icon: <Repeat size={24} className="text-purple-600"/>, color: 'border-purple-400', rarity: 'Rare' },
-            cold: { name: 'Cold Deck', desc: 'Flash freeze! Target enemy piece cannot move next turn.', icon: <Snowflake size={24} className="text-cyan-600"/>, color: 'border-cyan-400', rarity: 'Uncommon' },
-            joker: { name: 'Joker', desc: 'Wildcard! One Pawn moves and captures like a Queen this turn.', icon: <Ghost size={24} className="text-pink-600"/>, color: 'border-pink-400', rarity: 'Rare' },
-            rewind: { name: 'Rewind', desc: 'Time warp! Undo the previous turn completely.', icon: <RotateCcw size={24} className="text-orange-600"/>, color: 'border-orange-400', rarity: 'Rare' },
-            nope: { name: 'Nope', desc: 'Signal Jammer! Opponent cannot use Power Cards next turn.', icon: <Ban size={24} className="text-slate-600"/>, color: 'border-slate-400', rarity: 'Common' },
-            fortify: { name: 'Fortify', desc: 'Shields up! Select a piece to make it immune to capture.', icon: <TowerControl size={24} className="text-stone-600"/>, color: 'border-stone-400', rarity: 'Uncommon' },
-            decree: { name: 'Royal Decree', desc: 'Teleport your King up to 2 squares instantly.', icon: <ScrollText size={24} className="text-amber-600"/>, color: 'border-amber-400', rarity: 'Uncommon' }
+            bust: { name: 'Bust', rank: 'K', suit: '♠', desc: 'Destroy adjacent enemy.', icon: <Skull size={20} className="text-slate-700"/>, color: 'border-red-400', rarity: 'Common' },
+            jackpot: { name: 'Jackpot', rank: 'A', suit: '♦', desc: 'Steal 2 Points.', icon: <Coins size={20} className="text-slate-700"/>, color: 'border-yellow-400', rarity: 'Ultra Rare' },
+            shuffle: { name: 'Shuffle', rank: 'Q', suit: '♣', desc: 'Swap King w/ Piece.', icon: <RefreshCcw size={20} className="text-slate-700"/>, color: 'border-blue-400', rarity: 'Uncommon' },
+            rebuy: { name: 'Rebuy', rank: '10', suit: '♥', desc: 'Spawn a Pawn.', icon: <Shield size={20} className="text-slate-700"/>, color: 'border-emerald-400', rarity: 'Common' },
+            double: { name: 'Double', rank: 'J', suit: '♠', desc: 'Move Twice.', icon: <Repeat size={20} className="text-slate-700"/>, color: 'border-purple-400', rarity: 'Rare' },
+            cold: { name: 'Cold', rank: '9', suit: '♦', desc: 'Freeze Enemy Piece.', icon: <Snowflake size={20} className="text-slate-700"/>, color: 'border-cyan-400', rarity: 'Uncommon' },
+            joker: { name: 'Joker', rank: 'J', suit: '♥', desc: 'Pawn acts as Queen.', icon: <Ghost size={20} className="text-slate-700"/>, color: 'border-pink-400', rarity: 'Rare' },
+            rewind: { name: 'Rewind', rank: '8', suit: '♣', desc: 'Undo Last Turn.', icon: <RotateCcw size={20} className="text-slate-700"/>, color: 'border-orange-400', rarity: 'Rare' },
+            nope: { name: 'Nope', rank: 'N', suit: '♠', desc: 'Block Enemy Cards.', icon: <Ban size={20} className="text-slate-700"/>, color: 'border-slate-400', rarity: 'Common' },
+            fortify: { name: 'Fortify', rank: 'R', suit: '♦', desc: 'Piece Immune 1 Turn.', icon: <TowerControl size={20} className="text-slate-700"/>, color: 'border-stone-400', rarity: 'Uncommon' },
+            decree: { name: 'Decree', rank: 'K', suit: '♥', desc: 'Teleport King.', icon: <ScrollText size={20} className="text-slate-700"/>, color: 'border-amber-400', rarity: 'Uncommon' }
         };
 
         const DECK_DISTRIBUTION = [
@@ -155,11 +159,107 @@
             return <span className={`${sizeClass} ${scaleFix} inline-block select-none font-bold drop-shadow-md ${finalColor}`}>{icon}</span>;
         };
 
-        // --- Sub-Components ---
+        // --- Visual Components ---
+
+        // Reusable Card Face (Matches Reference Image)
+        const PlayingCard = ({ card, onClick, isSelected, disabled, scale = 1, badge = null }) => {
+            return (
+                <div 
+                    onClick={!disabled ? onClick : undefined}
+                    style={{ transform: `scale(${scale})` }}
+                    className={`
+                        relative w-28 h-40 rounded-xl shadow-xl transition-all duration-200 cursor-pointer select-none origin-center
+                        bg-slate-300 border-2 flex flex-col items-center p-2
+                        ${isSelected ? '-translate-y-4 ring-4 ring-yellow-400 z-10' : 'hover:-translate-y-2'}
+                        ${disabled ? 'opacity-50 cursor-default hover:translate-y-0' : 'border-slate-400'}
+                    `}
+                >
+                    {/* Top Left Rank */}
+                    <div className="absolute top-1 left-2 text-slate-900 font-black text-lg leading-none">
+                        {card.rank}
+                    </div>
+                    
+                    {/* Top Right Suit */}
+                    <div className="absolute top-1 right-2 text-slate-800 text-lg leading-none">
+                        {card.suit}
+                    </div>
+
+                    {/* Center Icon */}
+                    <div className="mt-4 mb-2 bg-slate-200/80 p-3 rounded-full shadow-inner">
+                        {card.icon}
+                    </div>
+
+                    {/* Name */}
+                    <div className="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">
+                        {card.name}
+                    </div>
+
+                    {/* Description */}
+                    <div className="text-[9px] text-center text-slate-600 leading-tight w-full border-t border-slate-400/30 pt-1 px-1">
+                        {card.desc}
+                    </div>
+
+                    {/* Optional Badge (e.g., x5) */}
+                    {badge && (
+                        <div className="absolute -top-2 -right-2 bg-yellow-500 text-slate-900 text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-md border-2 border-slate-800">
+                            {badge}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Deck Back (Matches Reference Blue Card)
+        const CardBack = ({ count, onClick }) => (
+          <div 
+            onClick={onClick} 
+            className="relative w-24 h-32 bg-indigo-900 rounded-xl border-4 border-slate-800 shadow-xl flex items-center justify-center group cursor-pointer overflow-hidden transition-transform active:scale-95"
+          >
+              {/* Geometric Pattern Overlay */}
+              <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+              <div className="absolute inset-0 border-2 border-indigo-700 rounded-lg m-1"></div>
+              
+              <div className="z-10 flex flex-col items-center">
+                  <div className="text-4xl text-yellow-500 mb-1 filter drop-shadow-md">♞</div>
+                  <div className="text-[10px] font-black tracking-widest text-indigo-200 uppercase">Vegas</div>
+                  <div className="text-[8px] font-bold tracking-widest text-indigo-300/60 uppercase">Chess</div>
+              </div>
+              
+              <div className="absolute top-1 right-1"><Info size={12} className="text-indigo-400" /></div>
+              
+              {/* Stack Visuals */}
+              {count > 1 && <div className="absolute -right-1 -bottom-1 w-full h-full rounded-xl -z-10 bg-indigo-900 border-4 border-slate-800"></div>}
+              {count > 5 && <div className="absolute -right-2 -bottom-2 w-full h-full rounded-xl -z-20 bg-indigo-900 border-4 border-slate-800"></div>}
+          </div>
+        );
+
+        const DiscardPile = ({ pile, onClick }) => {
+            if (pile.length === 0) {
+                return (
+                    <div className="w-24 h-32 rounded-xl border-2 border-dashed border-slate-600/50 flex items-center justify-center">
+                        <span className="text-[10px] uppercase font-bold text-slate-500">Discard</span>
+                    </div>
+                );
+            }
+            const topCard = pile[pile.length - 1];
+            
+            // Render the top card, but scaled down slightly to fit the pile slot
+            return (
+                <div onClick={onClick} className="relative w-24 h-32 cursor-pointer transition-transform hover:scale-105">
+                    <div className="transform scale-90 origin-top-left">
+                        <PlayingCard card={topCard} disabled={true} />
+                    </div>
+                    {/* "Used" stamp */}
+                    <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                        <span className="text-slate-900/10 font-black text-2xl -rotate-12 border-4 border-slate-900/10 px-2 rounded uppercase">Used</span>
+                    </div>
+                </div>
+            );
+        };
 
         const Modal = ({ title, children, onClose, wide = false, theme }) => (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className={`${theme.guideBg} border ${theme.boardBorder} rounded-2xl w-full max-h-[85vh] flex flex-col shadow-2xl ${wide ? 'max-w-3xl' : 'max-w-md'}`}>
+            <div className={`${theme.guideBg} border ${theme.boardBorder} rounded-2xl w-full max-h-[85vh] flex flex-col shadow-2xl ${wide ? 'max-w-4xl' : 'max-w-md'}`}>
               <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/20 rounded-t-2xl">
                 <h2 className={`text-xl font-bold uppercase tracking-wider ${theme.accentText}`}>{title}</h2>
                 <button onClick={onClose} className={`p-1 hover:bg-white/10 rounded-full transition-colors ${theme.textMain}`}><X size={20}/></button>
@@ -170,41 +270,6 @@
             </div>
           </div>
         );
-
-        const CardBack = ({ count, theme, onClick }) => (
-          <div onClick={onClick} className={`relative w-24 h-32 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} rounded-xl border-4 shadow-xl flex items-center justify-center group cursor-pointer overflow-hidden transition-transform active:scale-95`}>
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-              <div className="absolute inset-0 border-2 border-white/10 rounded-lg m-1"></div>
-              <div className="z-10 flex flex-col items-center opacity-50 group-hover:opacity-100 transition-opacity">
-                  <div className={`text-4xl mb-1 filter drop-shadow-lg ${theme.accentText}`}>♞</div>
-                  <div className={`text-[10px] font-black tracking-widest uppercase ${theme.textSub}`}>Vegas</div>
-                  <div className={`text-[8px] font-bold tracking-widest uppercase ${theme.textSub}`}>Chess</div>
-              </div>
-              <div className="absolute top-1 right-1"><Info size={12} className={`${theme.textSub} opacity-50`} /></div>
-              {count > 1 && <div className={`absolute -right-1 -bottom-1 w-full h-full rounded-xl -z-10 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} border-4`}></div>}
-              {count > 5 && <div className={`absolute -right-2 -bottom-2 w-full h-full rounded-xl -z-20 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} border-4`}></div>}
-          </div>
-        );
-
-        const DiscardPile = ({ pile, onClick, theme }) => {
-            if (pile.length === 0) {
-                return (
-                    <div className={`w-24 h-32 rounded-xl border-2 border-dashed ${theme.name === 'Casino Night' ? 'border-slate-700' : 'border-[#5d4037]'} flex items-center justify-center`}>
-                        <span className={`text-[10px] uppercase font-bold ${theme.textSub}`}>Discard</span>
-                    </div>
-                );
-            }
-            const topCard = pile[pile.length - 1];
-            return (
-                <div onClick={onClick} className={`relative w-24 h-32 ${theme.cardBg} rounded-xl shadow-md border cursor-pointer hover:scale-105 transition-transform`}>
-                    <div className="flex flex-col items-center justify-center h-full p-2 opacity-50 hover:opacity-100 transition-opacity">
-                       <div className="scale-75">{topCard.icon}</div>
-                       <div className="text-[8px] font-black uppercase text-center leading-none mt-1 text-black">{topCard.name}</div>
-                    </div>
-                    <div className={`absolute inset-0 flex items-center justify-center font-bold text-xs uppercase -rotate-12 opacity-20 pointer-events-none text-black`}>Used</div>
-                </div>
-            );
-        };
 
         const Die = ({ value, rolling }) => {
           const rotation = rolling ? Math.random() * 360 : 0;
@@ -876,11 +941,30 @@
               </div>
 
               {/* Main Game Area */}
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                  {/* Left Graveyard */}
-                  <div className={`${theme.graveyardBg} p-2 rounded-lg border w-full md:w-20 h-20 md:h-96 overflow-y-auto flex md:flex-col flex-row gap-1 items-center shadow-inner`}>
-                     <div className={`text-[10px] ${theme.textSub} uppercase font-bold mb-1 text-center w-full`}>Taken</div>
-                     {stats.black.history.map((p, i) => <div key={i} className="opacity-75">{renderPieceIcon(p.toUpperCase(), "text-2xl")}</div>)}
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                  
+                  {/* Left Sidebar: Combined Graveyard */}
+                  <div className={`${theme.graveyardBg} p-4 rounded-xl border w-full md:w-32 h-20 md:h-[32rem] flex md:flex-col flex-row justify-between items-center shadow-2xl relative`}>
+                      
+                      {/* Top Half: Black's Loot (White Pieces) */}
+                      <div className="flex flex-col items-center gap-1 w-full h-1/2 overflow-y-auto custom-scrollbar border-b border-white/5 pb-2">
+                          <div className={`text-[10px] ${theme.textSub} uppercase font-bold mb-1 text-center w-full`}>Black Taken</div>
+                          <div className="flex flex-wrap justify-center gap-1">
+                              {stats.black.history.map((p, i) => (
+                                  <div key={i} className="opacity-75 hover:scale-125 transition-transform">{renderPieceIcon(p.toUpperCase(), "text-2xl", theme.capturedWhitePiece)}</div>
+                              ))}
+                          </div>
+                      </div>
+
+                      {/* Bottom Half: White's Loot (Black Pieces) */}
+                      <div className="flex flex-col items-center gap-1 w-full h-1/2 overflow-y-auto custom-scrollbar pt-2">
+                          <div className="flex flex-wrap justify-center gap-1">
+                              {stats.white.history.map((p, i) => (
+                                  <div key={i} className="opacity-75 hover:scale-125 transition-transform">{renderPieceIcon(p.toLowerCase(), "text-2xl", theme.capturedBlackPiece)}</div>
+                              ))}
+                          </div>
+                          <div className={`text-[10px] ${theme.textSub} uppercase font-bold mt-auto text-center w-full`}>White Taken</div>
+                      </div>
                   </div>
 
                   {/* Board */}
@@ -901,23 +985,18 @@
                     )}
                   </div>
 
-                  {/* Right Column: Graveyard + Deck + Discard */}
-                  <div className="flex flex-col gap-4">
-                      {/* Right Graveyard */}
-                      <div className={`${theme.graveyardBg} p-2 rounded-lg border w-full md:w-24 h-20 md:h-48 overflow-y-auto flex md:flex-col flex-row gap-1 items-center shadow-inner`}>
-                         <div className={`text-[10px] ${theme.textSub} uppercase font-bold mb-1 text-center w-full`}>Taken</div>
-                         {stats.white.history.map((p, i) => <div key={i} className="opacity-75">{renderPieceIcon(p.toLowerCase(), "text-2xl", "text-slate-400")}</div>)}
-                      </div>
-
-                      {/* Discard Pile */}
-                      <div className="flex flex-col items-center">
-                          <DiscardPile pile={discardPile} theme={theme} onClick={() => { setAuditTarget('discard'); setActiveModal('audit'); }} />
-                      </div>
+                  {/* Right Column: Deck & Discard */}
+                  <div className="flex flex-col gap-6 h-[32rem] justify-center">
                       
                       {/* Draw Pile */}
                       <div className="flex flex-col items-center">
                           <CardBack count={deck.length} theme={theme} onClick={() => setActiveModal('deck')} />
                           <div className={`text-[10px] ${theme.textSub} font-bold mt-1 text-center uppercase tracking-wider`}>{deck.length} Cards</div>
+                      </div>
+
+                      {/* Discard Pile */}
+                      <div className="flex flex-col items-center">
+                          <DiscardPile pile={discardPile} theme={theme} onClick={() => { setAuditTarget('discard'); setActiveModal('audit'); }} />
                       </div>
                   </div>
               </div>
@@ -1030,16 +1109,8 @@
                           {DECK_DISTRIBUTION.map((dist, i) => {
                               const card = CARD_DEFINITIONS[dist.type];
                               return (
-                                  <div key={i} className={`p-3 rounded-xl border border-white/10 ${theme.name === 'Casino Night' ? 'bg-slate-800' : 'bg-[#4a3525]'} flex gap-3 items-start`}>
-                                      <div className={`p-2 rounded-full bg-black/20 ${card.color.replace('border', 'text')}`}>{card.icon}</div>
-                                      <div>
-                                          <div className={`font-bold text-sm ${theme.textMain} flex justify-between`}>
-                                              {card.name} 
-                                              <span className={`text-[10px] px-2 py-0.5 rounded-full bg-white/10 ${theme.textSub}`}>x{dist.count}</span>
-                                          </div>
-                                          <div className={`text-[10px] uppercase font-bold opacity-60 mb-1 ${card.color.replace('border', 'text')}`}>{card.rarity}</div>
-                                          <div className={`text-xs ${theme.textSub} leading-tight`}>{card.desc}</div>
-                                      </div>
+                                  <div key={i} className="flex justify-center">
+                                      <PlayingCard card={card} disabled={true} badge={`x${dist.count}`} />
                                   </div>
                               );
                           })}
@@ -1051,11 +1122,10 @@
                   <Modal title={auditTarget === 'discard' ? "Graveyard (Used Cards)" : `${auditTarget.toUpperCase()} Score Audit`} onClose={() => setActiveModal(null)} theme={theme}>
                       {auditTarget === 'discard' ? (
                           discardPile.length === 0 ? <div className="text-center italic opacity-50">No cards played yet.</div> : (
-                              <div className="grid grid-cols-3 gap-2">
+                              <div className="grid grid-cols-3 gap-4 p-2">
                                   {discardPile.slice().reverse().map((c, i) => (
-                                      <div key={i} className="flex flex-col items-center p-2 bg-black/20 rounded border border-white/5">
-                                          <div className="scale-75 mb-1">{c.icon}</div>
-                                          <div className="text-[10px] font-bold uppercase text-center leading-none">{c.name}</div>
+                                      <div key={i} className="flex justify-center">
+                                          <PlayingCard card={c} disabled={true} scale={0.9} />
                                       </div>
                                   ))}
                               </div>
