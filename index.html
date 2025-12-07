@@ -58,7 +58,7 @@
           Dices, Skull, Coins, ArrowRight, Ban,
           RotateCcw, Snowflake, Ghost, X, Repeat,
           TowerControl, ScrollText, BookOpen, HelpCircle, List,
-          Palette, Eye, Trash2, Diamond
+          Palette, Eye, Trash2, Diamond, Info
         } from 'lucide-react';
 
         // --- Constants ---
@@ -113,6 +113,28 @@
           ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
         ];
 
+        // --- Card Definitions & Distribution ---
+        const CARD_DEFINITIONS = {
+            bust: { name: 'Bust', desc: 'Demolish an adjacent enemy piece. No points awarded.', icon: <Skull size={24} className="text-red-600"/>, color: 'border-red-400', rarity: 'Common' },
+            jackpot: { name: 'Jackpot', desc: 'Reach into the opponent\'s stash and steal 2 Points.', icon: <Coins size={24} className="text-yellow-600"/>, color: 'border-yellow-400', rarity: 'Ultra Rare' },
+            shuffle: { name: 'Shuffle', desc: 'Swap your King with any of your other pieces.', icon: <RefreshCcw size={24} className="text-blue-600"/>, color: 'border-blue-400', rarity: 'Uncommon' },
+            rebuy: { name: 'Rebuy', desc: 'Reinforcements! Spawn a new Pawn on any empty square.', icon: <Shield size={24} className="text-emerald-600"/>, color: 'border-emerald-400', rarity: 'Common' },
+            double: { name: 'Double Down', desc: 'Adrenaline! Move the same piece twice this turn.', icon: <Repeat size={24} className="text-purple-600"/>, color: 'border-purple-400', rarity: 'Rare' },
+            cold: { name: 'Cold Deck', desc: 'Flash freeze! Target enemy piece cannot move next turn.', icon: <Snowflake size={24} className="text-cyan-600"/>, color: 'border-cyan-400', rarity: 'Uncommon' },
+            joker: { name: 'Joker', desc: 'Wildcard! One Pawn moves and captures like a Queen this turn.', icon: <Ghost size={24} className="text-pink-600"/>, color: 'border-pink-400', rarity: 'Rare' },
+            rewind: { name: 'Rewind', desc: 'Time warp! Undo the previous turn completely.', icon: <RotateCcw size={24} className="text-orange-600"/>, color: 'border-orange-400', rarity: 'Rare' },
+            nope: { name: 'Nope', desc: 'Signal Jammer! Opponent cannot use Power Cards next turn.', icon: <Ban size={24} className="text-slate-600"/>, color: 'border-slate-400', rarity: 'Common' },
+            fortify: { name: 'Fortify', desc: 'Shields up! Select a piece to make it immune to capture.', icon: <TowerControl size={24} className="text-stone-600"/>, color: 'border-stone-400', rarity: 'Uncommon' },
+            decree: { name: 'Royal Decree', desc: 'Teleport your King up to 2 squares instantly.', icon: <ScrollText size={24} className="text-amber-600"/>, color: 'border-amber-400', rarity: 'Uncommon' }
+        };
+
+        const DECK_DISTRIBUTION = [
+            { type: 'rebuy', count: 5 }, { type: 'bust', count: 5 }, { type: 'nope', count: 5 },
+            { type: 'shuffle', count: 3 }, { type: 'cold', count: 3 }, { type: 'fortify', count: 3 },
+            { type: 'decree', count: 3 }, { type: 'double', count: 3 }, { type: 'joker', count: 2 },
+            { type: 'rewind', count: 2 }, { type: 'jackpot', count: 2 },
+        ];
+
         const onBoard = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
 
         const renderPieceIcon = (code, sizeClass = "text-3xl sm:text-4xl", colorClass = null) => {
@@ -137,7 +159,7 @@
 
         const Modal = ({ title, children, onClose, wide = false, theme }) => (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className={`${theme.guideBg} border ${theme.boardBorder} rounded-2xl w-full max-h-[85vh] flex flex-col shadow-2xl ${wide ? 'max-w-2xl' : 'max-w-md'}`}>
+            <div className={`${theme.guideBg} border ${theme.boardBorder} rounded-2xl w-full max-h-[85vh] flex flex-col shadow-2xl ${wide ? 'max-w-3xl' : 'max-w-md'}`}>
               <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/20 rounded-t-2xl">
                 <h2 className={`text-xl font-bold uppercase tracking-wider ${theme.accentText}`}>{title}</h2>
                 <button onClick={onClose} className={`p-1 hover:bg-white/10 rounded-full transition-colors ${theme.textMain}`}><X size={20}/></button>
@@ -149,8 +171,8 @@
           </div>
         );
 
-        const CardBack = ({ count, theme }) => (
-          <div className={`relative w-24 h-32 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} rounded-xl border-4 shadow-xl flex items-center justify-center group cursor-pointer overflow-hidden`}>
+        const CardBack = ({ count, theme, onClick }) => (
+          <div onClick={onClick} className={`relative w-24 h-32 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} rounded-xl border-4 shadow-xl flex items-center justify-center group cursor-pointer overflow-hidden transition-transform active:scale-95`}>
               <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
               <div className="absolute inset-0 border-2 border-white/10 rounded-lg m-1"></div>
               <div className="z-10 flex flex-col items-center opacity-50 group-hover:opacity-100 transition-opacity">
@@ -158,6 +180,7 @@
                   <div className={`text-[10px] font-black tracking-widest uppercase ${theme.textSub}`}>Vegas</div>
                   <div className={`text-[8px] font-bold tracking-widest uppercase ${theme.textSub}`}>Chess</div>
               </div>
+              <div className="absolute top-1 right-1"><Info size={12} className={`${theme.textSub} opacity-50`} /></div>
               {count > 1 && <div className={`absolute -right-1 -bottom-1 w-full h-full rounded-xl -z-10 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} border-4`}></div>}
               {count > 5 && <div className={`absolute -right-2 -bottom-2 w-full h-full rounded-xl -z-20 ${theme.name === 'Casino Night' ? 'bg-indigo-950 border-slate-800' : 'bg-[#3e2723] border-[#271c19]'} border-4`}></div>}
           </div>
@@ -273,31 +296,13 @@
 
           const createCard = (type) => {
             const id = Math.random().toString(36).substr(2, 9);
-            switch (type) {
-              case 'bust': return { id, type: 'bust', name: 'Bust', desc: 'Demolish an adjacent enemy piece. No points awarded.', icon: <Skull size={24} className="text-red-600"/>, color: 'border-red-400' };
-              case 'jackpot': return { id, type: 'jackpot', name: 'Jackpot', desc: 'Reach into the opponent\'s stash and steal 2 Points.', icon: <Coins size={24} className="text-yellow-600"/>, color: 'border-yellow-400' };
-              case 'shuffle': return { id, type: 'shuffle', name: 'Shuffle', desc: 'Swap your King with any of your other pieces.', icon: <RefreshCcw size={24} className="text-blue-600"/>, color: 'border-blue-400' };
-              case 'rebuy': return { id, type: 'rebuy', name: 'Rebuy', desc: 'Reinforcements! Spawn a new Pawn on any empty square.', icon: <Shield size={24} className="text-emerald-600"/>, color: 'border-emerald-400' };
-              case 'double': return { id, type: 'double', name: 'Double Down', desc: 'Adrenaline! Move the same piece twice this turn.', icon: <Repeat size={24} className="text-purple-600"/>, color: 'border-purple-400' };
-              case 'cold': return { id, type: 'cold', name: 'Cold Deck', desc: 'Flash freeze! Target enemy piece cannot move next turn.', icon: <Snowflake size={24} className="text-cyan-600"/>, color: 'border-cyan-400' };
-              case 'joker': return { id, type: 'joker', name: 'Joker', desc: 'Wildcard! One Pawn moves and captures like a Queen this turn.', icon: <Ghost size={24} className="text-pink-600"/>, color: 'border-pink-400' };
-              case 'rewind': return { id, type: 'rewind', name: 'Rewind', desc: 'Time warp! Undo the previous turn completely.', icon: <RotateCcw size={24} className="text-orange-600"/>, color: 'border-orange-400' };
-              case 'nope': return { id, type: 'nope', name: 'Nope', desc: 'Signal Jammer! Opponent cannot use Power Cards next turn.', icon: <Ban size={24} className="text-slate-600"/>, color: 'border-slate-400' };
-              case 'fortify': return { id, type: 'fortify', name: 'Fortify', desc: 'Shields up! Select a piece to make it immune to capture.', icon: <TowerControl size={24} className="text-stone-600"/>, color: 'border-stone-400' };
-              case 'decree': return { id, type: 'decree', name: 'Royal Decree', desc: 'Royal Decree! Teleport your King up to 2 squares.', icon: <ScrollText size={24} className="text-amber-600"/>, color: 'border-amber-400' };
-              default: return null;
-            }
+            const def = CARD_DEFINITIONS[type];
+            return { id, type, ...def };
           };
 
           const generateDeck = () => {
-              const distribution = [
-                  { type: 'rebuy', count: 5 }, { type: 'bust', count: 5 }, { type: 'nope', count: 5 },
-                  { type: 'shuffle', count: 3 }, { type: 'cold', count: 3 }, { type: 'fortify', count: 3 },
-                  { type: 'decree', count: 3 }, { type: 'double', count: 3 }, { type: 'joker', count: 2 },
-                  { type: 'rewind', count: 2 }, { type: 'jackpot', count: 2 },
-              ];
               let newDeck = [];
-              distribution.forEach(d => {
+              DECK_DISTRIBUTION.forEach(d => {
                   for(let i=0; i<d.count; i++) newDeck.push(createCard(d.type));
               });
               return shuffle(newDeck);
@@ -896,22 +901,36 @@
                     )}
                   </div>
 
-                  {/* Right Graveyard */}
-                  <div className={`${theme.graveyardBg} p-2 rounded-lg border w-full md:w-20 h-20 md:h-96 overflow-y-auto flex md:flex-col flex-row gap-1 items-center shadow-inner`}>
-                     <div className={`text-[10px] ${theme.textSub} uppercase font-bold mb-1 text-center w-full`}>Taken</div>
-                     {stats.white.history.map((p, i) => <div key={i} className="opacity-75">{renderPieceIcon(p.toLowerCase(), "text-2xl", "text-slate-400")}</div>)}
+                  {/* Right Column: Graveyard + Deck + Discard */}
+                  <div className="flex flex-col gap-4">
+                      {/* Right Graveyard */}
+                      <div className={`${theme.graveyardBg} p-2 rounded-lg border w-full md:w-24 h-20 md:h-48 overflow-y-auto flex md:flex-col flex-row gap-1 items-center shadow-inner`}>
+                         <div className={`text-[10px] ${theme.textSub} uppercase font-bold mb-1 text-center w-full`}>Taken</div>
+                         {stats.white.history.map((p, i) => <div key={i} className="opacity-75">{renderPieceIcon(p.toLowerCase(), "text-2xl", "text-slate-400")}</div>)}
+                      </div>
+
+                      {/* Discard Pile */}
+                      <div className="flex flex-col items-center">
+                          <DiscardPile pile={discardPile} theme={theme} onClick={() => { setAuditTarget('discard'); setActiveModal('audit'); }} />
+                      </div>
+                      
+                      {/* Draw Pile */}
+                      <div className="flex flex-col items-center">
+                          <CardBack count={deck.length} theme={theme} onClick={() => setActiveModal('deck')} />
+                          <div className={`text-[10px] ${theme.textSub} font-bold mt-1 text-center uppercase tracking-wider`}>{deck.length} Cards</div>
+                      </div>
                   </div>
               </div>
 
-              {/* Cards */}
-              <div className="mt-6 w-full max-w-4xl px-4 flex gap-4">
-                <div className="flex-1 overflow-x-auto pb-2">
+              {/* Cards (Hand Only) */}
+              <div className="mt-6 w-full max-w-4xl px-4 flex justify-center">
+                <div className="w-full max-w-xl overflow-x-auto pb-2">
                     <div className="flex justify-between items-center mb-2">
                       <span className={`text-xs font-bold ${theme.textSub} uppercase tracking-widest`}>{turn === 'white' ? "White's Hand" : "Black's Hand"}</span>
                       {effects[turn].movesLeft > 1 && <span className="text-xs font-bold text-purple-400 animate-pulse">DOUBLE MOVE ACTIVE</span>}
                     </div>
 
-                    <div className="flex gap-3 h-40 items-center">
+                    <div className="flex gap-3 h-40 items-center justify-center">
                        {hands[turn].length === 0 && (
                          <div className={`w-full text-center ${theme.textSub} text-sm italic border-2 border-dashed border-slate-700 rounded-lg py-8`}>No cards. Roll a 7 or 11!</div>
                        )}
@@ -925,18 +944,6 @@
                             <div className="text-[9px] text-center text-slate-500 leading-tight border-t border-slate-200 pt-1 w-full">{card.desc}</div>
                          </div>
                        ))}
-                    </div>
-                </div>
-
-                {/* Right Side Stacks */}
-                <div className="flex flex-col gap-2 items-center justify-end pb-2">
-                    {/* Discard Pile */}
-                    <DiscardPile pile={discardPile} theme={theme} onClick={() => { setAuditTarget('discard'); setActiveModal('audit'); }} />
-                    
-                    {/* Draw Pile */}
-                    <div className="relative">
-                        <CardBack count={deck.length} theme={theme} />
-                        <div className={`text-[10px] ${theme.textSub} font-bold mt-1 text-center uppercase tracking-wider`}>{deck.length} Cards</div>
                     </div>
                 </div>
               </div>
@@ -1017,15 +1024,38 @@
                   </Modal>
               )}
 
+              {activeModal === 'deck' && (
+                  <Modal title="Deck Composition (36 Cards)" onClose={() => setActiveModal(null)} theme={theme} wide={true}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {DECK_DISTRIBUTION.map((dist, i) => {
+                              const card = CARD_DEFINITIONS[dist.type];
+                              return (
+                                  <div key={i} className={`p-3 rounded-xl border border-white/10 ${theme.name === 'Casino Night' ? 'bg-slate-800' : 'bg-[#4a3525]'} flex gap-3 items-start`}>
+                                      <div className={`p-2 rounded-full bg-black/20 ${card.color.replace('border', 'text')}`}>{card.icon}</div>
+                                      <div>
+                                          <div className={`font-bold text-sm ${theme.textMain} flex justify-between`}>
+                                              {card.name} 
+                                              <span className={`text-[10px] px-2 py-0.5 rounded-full bg-white/10 ${theme.textSub}`}>x{dist.count}</span>
+                                          </div>
+                                          <div className={`text-[10px] uppercase font-bold opacity-60 mb-1 ${card.color.replace('border', 'text')}`}>{card.rarity}</div>
+                                          <div className={`text-xs ${theme.textSub} leading-tight`}>{card.desc}</div>
+                                      </div>
+                                  </div>
+                              );
+                          })}
+                      </div>
+                  </Modal>
+              )}
+
               {activeModal === 'audit' && (
                   <Modal title={auditTarget === 'discard' ? "Graveyard (Used Cards)" : `${auditTarget.toUpperCase()} Score Audit`} onClose={() => setActiveModal(null)} theme={theme}>
                       {auditTarget === 'discard' ? (
                           discardPile.length === 0 ? <div className="text-center italic opacity-50">No cards played yet.</div> : (
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-3 gap-2">
                                   {discardPile.slice().reverse().map((c, i) => (
-                                      <div key={i} className="flex items-center gap-2 p-2 bg-black/20 rounded">
-                                          <div className="scale-75">{c.icon}</div>
-                                          <div className="text-xs font-bold uppercase">{c.name}</div>
+                                      <div key={i} className="flex flex-col items-center p-2 bg-black/20 rounded border border-white/5">
+                                          <div className="scale-75 mb-1">{c.icon}</div>
+                                          <div className="text-[10px] font-bold uppercase text-center leading-none">{c.name}</div>
                                       </div>
                                   ))}
                               </div>
